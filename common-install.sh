@@ -6,14 +6,14 @@ YUM_ARGS="--setopt=tsflags=nodocs"
 
 
 # shared packages
-# - build tools for building gems       +# add files
-# - iproute needed for ip command to get ip addresses   +ADD run.sh fluentd.conf.template passwd.template fluentd-check.sh ${HOME}/
-# - nss_wrapper used to support username identity       +ADD common-*.sh /tmp/
+# - build tools for building gems	+# add files
+# - iproute needed for ip command to get ip addresses	+ADD run.sh fluentd.conf.template passwd.template fluentd-check.sh ${HOME}/
+# - nss_wrapper used to support username identity	+ADD common-*.sh /tmp/
 # - bc for calculations in run.conf
-PACKAGES="gem gcc-c++ libcurl-devel make bc gettext nss_wrapper hostname iproute git git-core zlib zlib-devel patch readline readline-devel libyaml-devel libffi-devel openssl-devel  bzip2 autoconf automake libtool bison curl sqlite-devel which"
+PACKAGES="gem gcc-c++ libcurl-devel make bc gettext nss_wrapper hostname iproute"
 
 # ruby packages
-#PACKAGES="${PACKAGES} rh-ruby22 rh-ruby22-rubygems rh-ruby22-ruby-devel"
+PACKAGES="${PACKAGES} rh-ruby22 rh-ruby22-rubygems rh-ruby22-ruby-devel ruby-devel"
 
 # if the release is a red hat version then we need to set additional arguments for yum repositories
 RED_HAT_MATCH='^Red Hat.*$'
@@ -23,15 +23,14 @@ if [[ $RELEASE =~ $RED_HAT_MATCH && -z "$USE_SYSTEM_REPOS" ]]; then
   yum repolist --disablerepo=* && yum-config-manager --disable \* > /dev/null
   #Set YUM_ARGS
   YUM_ARGS="${YUM_ARGS} --enablerepo=rhel-7-server-rpms --enablerepo=rhel-server-rhscl-7-rpms --enablerepo=rhel-7-server-optional-rpms"
-  #subscription-manager repos --enable $YUM_ARGS
-  #yum-config-manager --enable $YUM_ARGS
+subscription-manager repos --enable $YUM_ARGS
+  yum-config-manager --enable $YUM_ARGS
 fi
 
 # enable epel when on CentOS
 CENTOS_MATCH='^CentOS.*'
 if [[ $RELEASE =~ $CENTOS_MATCH && -z "$USE_SYSTEM_REPOS" ]]; then
   rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
-  cd /tmp
   yum install -y epel-release centos-release-scl-rh
 fi
 
@@ -45,15 +44,6 @@ yum install -y $YUM_ARGS $PACKAGES
 yum clean all
 rm -rf /var/cache/yum/*
 rm -rf /var/lib/yum/*
-
-curl -sSL https://rvm.io/mpapis.asc | gpg --import -
-  curl -sSL https://rvm.io/mpapis.asc | gpg2 --import -
-  curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import -
-  curl -L get.rvm.io |bash -s stable
-  source /etc/profile.d/rvm.sh
-  rvm reload
-  rvm requirements run
-  rvm install 2.5.2
 
 # set home directory
 mkdir -p ${HOME} && \
@@ -71,25 +61,8 @@ gem install -N --conservative --minimal-deps --no-document \
   fluent-plugin-rewrite-tag-filter \
   fluent-plugin-secure-forward \
   'fluent-plugin-remote_syslog:<1.0.0' \
+  fluent-plugin-splunk-ex \
   fluent-plugin-splunkhec
-#fluent-plugin-splunk-ex \
-
-
-#Installing Gem Fluend-splunk-ex
-cd /tmp/
- git clone https://github.com/gtrevg/fluent-plugin-splunk-ex.git fluent-plugin-splunk-ex
-cd fluent-plugin-splunk-ex
-
-gem install -N --conservative --minimal-deps --no-document \
-json \
-rake \
-rspec \
-pry \
-pry-nav
-
-gem build fluent-plugin-splunk-ex.gemspec
-gem install fluent-plugin-splunk-ex-1.0.3.gem
-
 
 # set up directores so that group 0 can have access like specified in
 # https://docs.openshift.com/container-platform/3.7/creating_images/guidelines.html
@@ -106,5 +79,3 @@ chgrp -R 0 /secrets
 chmod -R g+rwX /secrets
 chgrp -R 0 /var/log
 chmod -R g+rwX /var/log
-
-
