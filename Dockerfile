@@ -38,7 +38,7 @@ RUN chmod g+rx ${HOME}/fluentd-check.sh && \
     chmod +x /tmp/common-*.sh
 
 # execute files and remove when done
-RUN /tmp/common-install.sh && \
+#RUN /tmp/common-install.sh && \
 #    rm -f /tmp/common-*.sh
 
 # set working dir
