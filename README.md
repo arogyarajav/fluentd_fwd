@@ -1,4 +1,5 @@
-# Fluentd Forwarder Container
+# Fluentd Forwarder Container using CentOS
+#RHEL fluent forwarder is deprected for now will update in near future
 
 ## Table of Contents
 
@@ -74,7 +75,7 @@ This quickstart should be run on an installation of OpenShift Enterprise V3 with
 ### Template Files
 
 * Build Configurations
-  * [RHEL](./fluentd-forwarder-build-config-template.yaml)
+  * [RHEL](./fluentd-forwarder-build-config-template.yaml) # Do not use for now it is deprected
   * [CentOS](./fluentd-forwarder-centos-config-template.yaml)
 * [Application Deployment Template](./fluentd-forwarder-template.yaml)
 
