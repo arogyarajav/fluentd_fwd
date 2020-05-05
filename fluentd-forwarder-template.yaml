@@ -116,7 +116,7 @@ objects:
   data:
     fluentd.conf: |
       <source>
-        @type secure_forward
+        @type forward
         self_hostname "#{ENV['HOSTNAME']}"
         bind 0.0.0.0
         port 24284
