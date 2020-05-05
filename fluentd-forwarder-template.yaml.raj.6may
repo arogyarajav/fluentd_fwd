@@ -121,24 +121,13 @@ objects:
         port 24284
       </source>
 
-<filter **>
-      @type record_transformer
-      enable_ruby yes
-      auto_typecast yes
-      <record>
-        kubernetes_namespace_name ${record["kubernetes"].nil? ? 'devnull' : record["kubernetes"]["namespace_name"].nil? ? 'devnull' : record["kubernetes"]["namespace_name"]}
-        forwarded_by "#{ENV['HOSTNAME']}"
-        source_component "OCP"
-      </record>
-    </filter>
-
-    #Run filter on kube messages
-    <filter **>
-      @type grep
-      #Always filter out the restricted namespaces
-      exclude1 kubernetes_namespace_name (null|devnull|logging|default|kube-public|kube-service-catalog|kube-system|logging|management-infra|openshift|openshift-ansible-service-broker|openshift-infra|openshift-metrics|openshift-node)
-
-    </filter>
+      <filter **>
+        @type record_transformer
+        <record>
+          forwarded_by "#{ENV['HOSTNAME']}"
+          source_component "OCP"
+        </record>
+      </filter>
 
       <match **>
         @type ${TARGET_TYPE}
